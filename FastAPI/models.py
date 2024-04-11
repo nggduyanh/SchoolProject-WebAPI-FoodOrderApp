@@ -1,21 +1,13 @@
 from sqlalchemy import Boolean,Column,Integer,String,ForeignKey
 from database import Base,relationship
 
-# class User(Base):
-#     __tablename__="users"
+class Food(Base):
+    __tablename__='foods'
 
-#     id=Column(Integer,primary_key=True,index=True)
-#     username=Column(String(50),unique=True)
-#     post_r = relationship(
-#         "Post",
-#         backref="users",
-#         cascade="all"
-#     )
-
-# class Post(Base):
-#     __tablename__="posts"
-
-#     id=Column(Integer,primary_key=True,index=True)
-#     title=Column(String(50))
-#     content=Column(String(50))
-#     user_id = Column(Integer, ForeignKey("users.id"))
+    id_food=Column(Integer,primary_key=True,index=True)
+    name=Column(String(50))
+    description=Column(String(50))
+    price=Column(Integer)
+    # id_restaurant=Column(Integer,ForeignKey('restaurants.id_restaurant'))
+    # id_category=Column(Integer,ForeignKey('categories.id_category'))
+    # food_order=relationship('Order',backref='foods',cascade=all)
