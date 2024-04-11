@@ -22,13 +22,18 @@ app.add_middleware(
 
 models.Base.metadata.create_all(bind=engine)
 
-# class PostBase(BaseModel):
-#     title: str
-#     content: str
-#     user_id: int
+class OrderBase(BaseModel):
+    quantity: int
+    total_price: int
+    id_restaurant:int  
+    id_customer:int
+    id_food:int
 
-# class UserBase(BaseModel):
-#     username: str
+class RestaurantBase(BaseModel):
+    name: str
+    address: str
+    phone: int
+    id_user:int
 
 def get_db():
     db=SessionLocal()
@@ -39,68 +44,76 @@ def get_db():
 
 db_dependency=Annotated[Session,Depends(get_db)]
 
-# @app.get("/users/",status_code=status.HTTP_200_OK)
-# async def getall_user(db:db_dependency):
-#     user = db.query(models.User).all()
-#     if user is None:
-#         raise HTTPException(status_code=404,detail='Dont have any user')
-#     return user
+# Order
+@app.post("/orders/",status_code=status.HTTP_201_CREATED)
+async def post_order(order:OrderBase,db:db_dependency):
+    db_order=models.Order(**order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
 
-# @app.get("/users/{user_id}",status_code=status.HTTP_200_OK)
-# async def get_user_by_id(user_id:int,db:db_dependency):
-#     user = db.query(models.User).filter(models.User.id==user_id).first()
-#     if user is None:
-#         raise HTTPException(status_code=404,detail='User not found')
-#     return user
+@app.get("/orders/",status_code=status.HTTP_200_OK)
+async def getall_order(db:db_dependency):
+    order = db.query(models.Order).all()
+    if order is None:
+        raise HTTPException(status_code=404,detail='Dont have any order')
+    return order
 
-# @app.post("/users/",status_code=status.HTTP_201_CREATED)
-# async def post_user(user:UserBase,db:db_dependency):
-#     db_user=models.User(**user.dict())
-#     db.add(db_user)
-#     db.commit()
-#     db.refresh(db_user)
+@app.get("/orders/{order_id}",status_code=status.HTTP_200_OK)
+async def get_order_by_id(order_id:int,db:db_dependency):
+    order = db.query(models.Order).filter(models.Order.id_order==order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404,detail='Order not found')
+    return order
 
-# @app.put("/users/{user_id}",status_code=status.HTTP_200_OK)
-# async def put_user(user_id:int,user:UserBase,db:db_dependency):
-#     db_user=db.query(models.User).filter(models.User.id==user_id).first()
-#     db_user=user
-#     db.commit()
-#     db.refresh(db_user)
+@app.put("/orders/{order_id}",status_code=status.HTTP_200_OK)
+async def put_order(order_id:int,order:OrderBase,db:db_dependency):
+    db_order=db.query(models.Order).filter(models.Order.id_order==order_id)
+    db_order.update(order.dict())
+    db.commit()
+    db.refresh(db_order.first())
 
-# @app.delete("/user/{user_id}",status_code=status.HTTP_200_OK)
-# async def delete_user_by_id(user_id:int,db:db_dependency):
-#     user=db.query(models.User).filter(models.User.id==user_id).first()
-#     if user is None:
-#         raise HTTPException(status_code=404,detail="Post not found")
-#     db.delete(user)
-#     db.commit()
+@app.delete("/order/{order_id}",status_code=status.HTTP_200_OK)
+async def delete_order_by_id(order_id:int,db:db_dependency):
+    order=db.query(models.Order).filter(models.Order.id_order==order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404,detail="Post not found")
+    db.delete(order)
+    db.commit()
 
-# @app.get("/posts/",status_code=status.HTTP_200_OK)
-# async def getall_post(db:db_dependency):
-#     post=db.query(models.Post).all()
-#     if post is None:
-#         raise HTTPException(status_code=404,detail="Post not found")
-#     return post
+# Restaurant
+@app.post("/restaurants/",status_code=status.HTTP_201_CREATED)
+async def post_restaurant(restaurant:RestaurantBase,db:db_dependency):
+    db_restaurant=models.Restaurant(**restaurant.dict())
+    db.add(db_restaurant)
+    db.commit()
+    db.refresh(db_restaurant)
 
-# @app.get("/posts/{post_id}",status_code=status.HTTP_200_OK)
-# async def get_post_by_id(post_id:int,db:db_dependency):
-#     post=db.query(models.Post).filter(models.Post.id==post_id).first()
-#     if post is None:
-#         raise HTTPException(status_code=404,detail="Post not found")
-#     return post
+@app.get("/restaurants/",status_code=status.HTTP_200_OK)
+async def getall_restaurant(db:db_dependency):
+    restaurant = db.query(models.Restaurant).all()
+    if restaurant is None:
+        raise HTTPException(status_code=404,detail='Dont have any restaurant')
+    return restaurant
 
-# @app.post("/posts/",status_code=status.HTTP_201_CREATED)
-# async def post_post(post:PostBase,db:db_dependency):
-#     db_post=models.Post(**post.dict())
-#     db.add(db_post)
-#     db.commit()
-#     db.refresh(db_post)
+@app.get("/restaurants/{restaurant_id}",status_code=status.HTTP_200_OK)
+async def get_restaurant_by_id(restaurant_id:int,db:db_dependency):
+    restaurant = db.query(models.Restaurant).filter(models.Restaurant.id_restaurant==restaurant_id).first()
+    if restaurant is None:
+        raise HTTPException(status_code=404,detail='Restaurant not found')
+    return restaurant
 
-# @app.delete("/post/{post_id}",status_code=status.HTTP_200_OK)
-# async def delete_post(post_id:int,db:db_dependency):
-#     post=db.query(models.Post).filter(models.Post.id==post_id).first()
-#     if post is None:
-#         raise HTTPException(status_code=404,detail="Post not found")
-#     db.delete(post)
-#     db.commit()
-#     db.refresh(post)
+@app.put("/restaurants/{restaurant_id}",status_code=status.HTTP_200_OK)
+async def put_restaurant(restaurant_id:int,restaurant:RestaurantBase,db:db_dependency):
+    db_restaurant=db.query(models.Restaurant).filter(models.Restaurant.id_restaurant==restaurant_id)
+    db_restaurant.update(restaurant.dict())
+    db.commit()
+    db.refresh(db_restaurant.first())
+
+@app.delete("/restaurant/{restaurant_id}",status_code=status.HTTP_200_OK)
+async def delete_restaurant_by_id(restaurant_id:int,db:db_dependency):
+    restaurant=db.query(models.Restaurant).filter(models.Restaurant.id_restaurant==restaurant_id).first()
+    if restaurant is None:
+        raise HTTPException(status_code=404,detail="Restaurant not found")
+    db.delete(restaurant)
+    db.commit()
