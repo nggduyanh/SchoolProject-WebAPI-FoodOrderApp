@@ -23,11 +23,12 @@ app.add_middleware(
 models.Base.metadata.create_all(bind=engine)
 
 class FoodBase(BaseModel):
-    name:str
-    description:str
-    price:int
-    id_restaurant:int
-    id_category:int
+    name: str
+    description: str
+    price: int
+    image: str
+    # id_restaurant:int
+    # id_category:int
 
 class OrderBase(BaseModel):
     quantity: int
@@ -42,6 +43,17 @@ class RestaurantBase(BaseModel):
     phone: int
     id_user:int
 
+#Admin
+class AdminBase(BaseModel):
+    name: str
+    id_user: int
+
+#Categories
+class CategoryBase(BaseModel):
+    name: str
+    description: str
+
+
 def get_db():
     db=SessionLocal()
     try:
@@ -51,7 +63,7 @@ def get_db():
 
 db_dependency=Annotated[Session,Depends(get_db)]
 
-#Food
+
 @app.get("/foods/",status_code=status.HTTP_200_OK)
 async def getall_food(db:db_dependency):
     food = db.query(models.Food).all()
@@ -78,7 +90,7 @@ async def put_food(food_id:int,food:FoodBase,db:db_dependency):
     db_food=db.query(models.Food).filter(models.Food.id_food==food_id)
     db_food.update(food.dict())
     db.commit()
-    db.refresh(db_food.first()) 
+    db.refresh(db_food.first())
 
 @app.delete("/food/{food_id}",status_code=status.HTTP_200_OK)
 async def delete_food_by_id(food_id:int,db:db_dependency):
@@ -160,3 +172,98 @@ async def delete_restaurant_by_id(restaurant_id:int,db:db_dependency):
         raise HTTPException(status_code=404,detail="Restaurant not found")
     db.delete(restaurant)
     db.commit()
+
+#Admin funtcion
+@app.get("/admins/", status_code=status.HTTP_200_OK)
+async def get_all_admins(db: db_dependency):
+    admins = db.query(models.Admin).all()
+    if not admins:
+        raise HTTPException(status_code=404, detail='No admins found')
+    return admins
+
+# Select
+@app.get("/admins/{admin_id}", status_code=status.HTTP_200_OK)
+async def get_admin_by_id(admin_id: int, db: db_dependency):
+    admin = db.query(models.Admin).filter(models.Admin.id_admin == admin_id).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail='Admin not found')
+    return admin
+
+@app.post("/admins/", status_code=status.HTTP_201_CREATED)
+async def create_admin(admin: AdminBase, db: db_dependency):
+    db_admin = models.Admin(**admin.dict())
+    db.add(db_admin)
+    db.commit()
+    db.refresh(db_admin)
+    return db_admin
+
+# Delete
+@app.delete("/admins/{admin_id}", status_code=status.HTTP_200_OK)
+async def delete_admin(admin_id: int, db: db_dependency):
+    admin = db.query(models.Admin).filter(models.Admin.id_admin == admin_id).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail='Admin not found')
+    db.delete(admin)
+    db.commit()
+    return {"message": "Admin deleted successfully"}
+
+# Update
+@app.put("/admins/{admin_id}", status_code=status.HTTP_200_OK)
+async def put_admin(admin_id: int, admin: AdminBase, db: db_dependency):
+    db_admin = db.query(models.Admin).filter(models.Admin.id_admin == admin_id).first()
+    if not db_admin:
+        raise HTTPException(status_code=404, detail='Admin not found')
+
+    db_admin.name = admin.name
+    db_admin.id_user = admin.id_user
+    
+    db.commit()
+    db.refresh(db_admin)
+    return db_admin
+
+#Categories function
+@app.get("/categories/", status_code=status.HTTP_200_OK)
+async def get_all_categories(db: db_dependency):
+    categories = db.query(models.Category).all()
+    if not categories:
+        raise HTTPException(status_code=404, detail='No categories found')
+    return categories
+# Select
+@app.get("/categories/{category_id}", status_code=status.HTTP_200_OK)
+async def get_category_by_id(category_id: int, db: db_dependency):
+    category = db.query(models.Category).filter(models.Category.id_category == category_id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail='Category not found')
+    return category
+
+@app.post("/categories/", status_code=status.HTTP_201_CREATED)
+async def create_category(category: CategoryBase, db: db_dependency):
+    db_category = models.Category(**category.dict())
+    db.add(db_category)
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+# Delete
+@app.delete("/categories/{category_id}", status_code=status.HTTP_200_OK)
+async def delete_category(category_id: int, db: db_dependency):
+    category = db.query(models.Category).filter(models.Category.id_category == category_id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail='Category not found')
+    db.delete(category)
+    db.commit()
+    return {"message": "Category deleted successfully"}
+
+# Update
+@app.put("/categories/{category_id}", status_code=status.HTTP_200_OK)
+async def put_category(category_id: int, category: CategoryBase, db: db_dependency):
+    db_category = db.query(models.Category).filter(models.Category.id_category == category_id).first()
+    if not db_category:
+        raise HTTPException(status_code=404, detail='Category not found')
+    
+    db_category.name = category.name
+    db_category.description = category.description
+    
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
