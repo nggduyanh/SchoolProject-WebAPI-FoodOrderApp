@@ -1,6 +1,27 @@
 from sqlalchemy import Boolean,Column,Integer,String,ForeignKey
 from database import Base,relationship
 
+class User(Base):
+    __tablename__='users'
+
+    id_user=Column(Integer,primary_key=True,index=True)
+    username=Column(String(50),unique=True)
+    password=Column(String(50))
+    role=Column(String(50))
+    user_customer=relationship("Customer",backref="users",cascade="all")
+    user_restaurant=relationship("Restaurant",backref="users",cascade="all")
+    user_admin=relationship("Admin",backref="users",cascade="all")
+
+class Customer(Base):
+    __tablename__="customers"   
+
+    id_customer=Column(Integer,primary_key=True,index=True)
+    name=Column(String(50))
+    address=Column(String(50))
+    phone=Column(String(20))
+    id_user=Column(Integer,ForeignKey("users.id_user"))
+    customer_order=relationship("Order",backref="customers",cascade="all")
+
 class Food(Base):
     __tablename__='foods'
 
@@ -11,6 +32,7 @@ class Food(Base):
     image=Column(String(255))
     id_restaurant=Column(Integer,ForeignKey("restaurants.id_restaurant"))
     id_category=Column(Integer,ForeignKey("categories.id_category"))
+    food_order=relationship("Order",backref="foods",cascade="all")
 
 class Order(Base):
     __tablename__="orders"

@@ -21,15 +21,37 @@ app.add_middleware(
 )
 
 models.Base.metadata.create_all(bind=engine)
+#User
+class UserBase(BaseModel):
+    username:str
+    password:str
+    role:str
+#Customer
+class CustomerBase(BaseModel):
+    name:str
+    address:str
+    phone:str
+    id_user:int
 
+class CustomerUpdate(BaseModel):
+    name:str
+    address:str
+    phone:str
+#Food
 class FoodBase(BaseModel):
     name: str
     description: str
     price: int
     image: str
-    # id_restaurant:int
-    # id_category:int
+    id_restaurant:int
+    id_category:int
 
+class FoodUpdate(BaseModel):
+    name: str
+    description: str
+    price: int
+    image: str
+#Order
 class OrderBase(BaseModel):
     quantity: int
     total_price: int
@@ -37,22 +59,38 @@ class OrderBase(BaseModel):
     id_customer:int
     id_food:int
 
+class OrderUpdate(BaseModel):
+    quantity: int
+    total_price: int
+#Restaurant
 class RestaurantBase(BaseModel):
     name: str
     address: str
     phone: int
     id_user:int
 
+class RestaurantUpdate(BaseModel):
+    name: str
+    address: str
+    phone: int
+
 #Admin
 class AdminBase(BaseModel):
     name: str
     id_user: int
 
+class AdminUpdate(BaseModel):
+    name: str
+
 #Categories
 class CategoryBase(BaseModel):
     name: str
     description: str
+    id_admin:int
 
+class CategoryUpdate(BaseModel):
+    name: str
+    description: str
 
 def get_db():
     db=SessionLocal()
@@ -63,7 +101,91 @@ def get_db():
 
 db_dependency=Annotated[Session,Depends(get_db)]
 
+#User
+@app.get("/users/",status_code=status.HTTP_200_OK)
+async def getall_user(db:db_dependency):
+    user = db.query(models.User).all()
+    if user is None:
+        raise HTTPException(status_code=404,detail='Dont have any user')
+    return user
 
+@app.get("/users/{user_id}",status_code=status.HTTP_200_OK)
+async def get_user_by_id(user_id:int,db:db_dependency):
+    user = db.query(models.User).filter(models.User.id_user==user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404,detail='User not found')
+    return user
+
+@app.get("/users/{user_username}/{user_password}",status_code=status.HTTP_200_OK)
+async def get_user_by_account(user_username:str,user_password:str,db:db_dependency):
+    user = db.query(models.User).filter(models.User.username==user_username,models.User.password==user_password).first()
+    if user is None:
+        raise HTTPException(status_code=404,detail='Your Username or password is incorrect')
+    return user
+
+@app.post("/users/",status_code=status.HTTP_201_CREATED)
+async def post_user(user:UserBase,db:db_dependency):
+    db_user=models.User(**user.dict())
+    try:
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+    except:
+        raise HTTPException(status_code=404,detail="This username already exist")
+
+@app.put("/users/{user_id}",status_code=status.HTTP_200_OK)
+async def put_user(user_id:int,user:UserBase,db:db_dependency):
+    db_user=db.query(models.User).filter(models.User.id_user==user_id)
+    db_user.update(user.dict())
+    db.commit()
+    db.refresh(db_user.first())
+
+@app.delete("/users/{user_id}",status_code=status.HTTP_200_OK)
+async def delete_user_by_id(user_id:int,db:db_dependency):
+    user=db.query(models.User).filter(models.User.id_user==user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404,detail="User not found")
+    db.delete(user)
+    db.commit()
+
+#Customer
+@app.get("/customers/",status_code=status.HTTP_200_OK)
+async def getall_customer(db:db_dependency):
+    customer = db.query(models.Customer).all()
+    if customer is None:
+        raise HTTPException(status_code=404,detail='Dont have any customer')
+    return customer
+
+@app.get("/customers/{customer_id}",status_code=status.HTTP_200_OK)
+async def get_customer_by_id(customer_id:int,db:db_dependency):
+    customer = db.query(models.Customer).filter(models.Customer.id_customer==customer_id).first()
+    if customer is None:
+        raise HTTPException(status_code=404,detail='Customer not found')
+    return customer
+
+@app.post("/customers/",status_code=status.HTTP_201_CREATED)
+async def post_customer(customer:CustomerBase,db:db_dependency):
+    db_customer=models.Customer(**customer.dict())
+    db.add(db_customer)
+    db.commit()
+    db.refresh(db_customer)
+
+@app.put("/customers/{customer_id}",status_code=status.HTTP_200_OK)
+async def put_customer(customer_id:int,customer:CustomerUpdate,db:db_dependency):
+    db_customer=db.query(models.Customer).filter(models.Customer.id_customer==customer_id)
+    db_customer.update(customer.dict())
+    db.commit()
+    db.refresh(db_customer.first())
+
+@app.delete("/customers/{customer_id}",status_code=status.HTTP_200_OK)
+async def delete_customer_by_id(customer_id:int,db:db_dependency):
+    customer=db.query(models.Customer).filter(models.Customer.id_customer==customer_id).first()
+    if customer is None:
+        raise HTTPException(status_code=404,detail="Customer not found")
+    db.delete(customer)
+    db.commit()
+
+#Food
 @app.get("/foods/",status_code=status.HTTP_200_OK)
 async def getall_food(db:db_dependency):
     food = db.query(models.Food).all()
@@ -86,7 +208,7 @@ async def post_food(food:FoodBase,db:db_dependency):
     db.refresh(db_food)
 
 @app.put("/foods/{food_id}",status_code=status.HTTP_200_OK)
-async def put_food(food_id:int,food:FoodBase,db:db_dependency):
+async def put_food(food_id:int,food:FoodUpdate,db:db_dependency):
     db_food=db.query(models.Food).filter(models.Food.id_food==food_id)
     db_food.update(food.dict())
     db.commit()
@@ -98,6 +220,7 @@ async def delete_food_by_id(food_id:int,db:db_dependency):
     if food is None:
         raise HTTPException(status_code=404,detail="Food not found")
     db.delete(food)
+    db.commit()
 
 # Order
 @app.post("/orders/",status_code=status.HTTP_201_CREATED)
@@ -122,7 +245,7 @@ async def get_order_by_id(order_id:int,db:db_dependency):
     return order
 
 @app.put("/orders/{order_id}",status_code=status.HTTP_200_OK)
-async def put_order(order_id:int,order:OrderBase,db:db_dependency):
+async def put_order(order_id:int,order:OrderUpdate,db:db_dependency):
     db_order=db.query(models.Order).filter(models.Order.id_order==order_id)
     db_order.update(order.dict())
     db.commit()
@@ -159,7 +282,7 @@ async def get_restaurant_by_id(restaurant_id:int,db:db_dependency):
     return restaurant
 
 @app.put("/restaurants/{restaurant_id}",status_code=status.HTTP_200_OK)
-async def put_restaurant(restaurant_id:int,restaurant:RestaurantBase,db:db_dependency):
+async def put_restaurant(restaurant_id:int,restaurant:RestaurantUpdate,db:db_dependency):
     db_restaurant=db.query(models.Restaurant).filter(models.Restaurant.id_restaurant==restaurant_id)
     db_restaurant.update(restaurant.dict())
     db.commit()
@@ -209,7 +332,7 @@ async def delete_admin(admin_id: int, db: db_dependency):
 
 # Update
 @app.put("/admins/{admin_id}", status_code=status.HTTP_200_OK)
-async def put_admin(admin_id: int, admin: AdminBase, db: db_dependency):
+async def put_admin(admin_id: int, admin: AdminUpdate, db: db_dependency):
     db_admin = db.query(models.Admin).filter(models.Admin.id_admin == admin_id).first()
     if not db_admin:
         raise HTTPException(status_code=404, detail='Admin not found')
@@ -255,14 +378,14 @@ async def delete_category(category_id: int, db: db_dependency):
 
 # Update
 @app.put("/categories/{category_id}", status_code=status.HTTP_200_OK)
-async def put_category(category_id: int, category: CategoryBase, db: db_dependency):
+async def put_category(category_id: int, category: CategoryUpdate, db: db_dependency):
     db_category = db.query(models.Category).filter(models.Category.id_category == category_id).first()
     if not db_category:
         raise HTTPException(status_code=404, detail='Category not found')
     
     db_category.name = category.name
     db_category.description = category.description
-    
+
     db.commit()
     db.refresh(db_category)
     return db_category
