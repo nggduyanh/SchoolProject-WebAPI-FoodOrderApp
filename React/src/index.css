@@ -1,68 +1,255 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+/* #root {
+  max-width: max-content;
+  padding: 0px;
+} */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.loginPlace,
+.regisPlace {
+  @apply w-1/2 text-center p-4 border-red-100 cursor-pointer;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+.active {
+  @apply text-orange-500;
+  pointer-events: none;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+
+.status p {
+  border-radius: 50px;
+  margin-top: 30px;
+  @apply p-2 min-w-28 text-center text-black cursor-pointer mr-5;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+p.active {
+  @apply bg-orange-400 ml-3 text-white;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.btnRegis {
+  margin-top: 30px;
+  border-radius: 50px;
+  transition: all .2s ease-in;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.btnRegis {
+  border: 1px solid white;
 }
+
+
+.btnHome {
+  border-radius: 10px;
+}
+
+.bgFood {
+  background: url("../src/assets/images/backgroundHomeMain.png");
+}
+
+/* ! Order Button */
+.order {
+  outline: none;
+  cursor: pointer;
+  border: 2px solid orange;
+  padding: 0.6rem 1rem;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.05rem;
+  font-weight: 500;
+  font-size: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  color: white;
+}
+
+.order.seeAll {
+  background: orange;
+  color: orange;
+}
+
+.order span {
+  position: relative;
+  z-index: 10;
+  transition: color 0.4s;
+}
+
+.order.seeAll:hover span {
+  color: white;
+}
+
+.order.seeAll::before {
+  content: "";
+  background: white;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform 0.2s cubic-bezier(0.3, 1, 0.8, 1);
+}
+
+.order:hover span {
+  color: orange;
+}
+
+.order::before,
+.order::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.order::before {
+  content: "";
+  background: orange;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform 0.2s cubic-bezier(0.3, 1, 0.8, 1);
+}
+
+.order:hover::before {
+  transform: translate3d(100%, 0, 0);
+}
+
+
+/* ! Nav */
+.navigation {
+  transition: color .4s linear;
+  cursor: pointer;
+}
+
+.navigation {
+  @apply py-2 px-4 text-lg text-black relative hover:text-orange-300;
+}
+
+.navigation:after {
+  content: " ";
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: orange;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  background: yellow;
+  transition: transform 0.2s ease-out;
+}
+
+.navigation:hover:after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+
+.logoBrand {
+  width: 120px;
+  height: 120px;
+}
+
+/* ! Explore */
+.btnExplore {
+  width: 110px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background-color: orange;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  transition-duration: .2s;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.116);
+  padding-left: 8px;
+  transition-duration: .5s;
+}
+
+.svgIcon {
+  height: 25px;
+  transition-duration: 1.5s;
+}
+
+.bell path {
+  fill: rgb(19, 19, 19);
+}
+
+.btnExplore:hover {
+  background-color: rgb(248, 181, 56);
+  transition-duration: .5s;
+}
+
+.btnExplore:active {
+  transform: scale(0.97);
+  transition-duration: .2s;
+}
+
+.btnExplore:hover .svgIcon {
+  transform: rotate(250deg);
+  transition-duration: 1.5s;
+}
+
+/* !Active categories */
+.activeCate {
+  @apply border-orange-500 border-2 text-orange-500
+}
+
+.PopularDishes {
+  background: url("https://fooma-theme.myshopify.com/cdn/shop/files/bg_img.jpg?v=1636714440");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.imgFood::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  background-color: rgb(12, 22, 54, 0.2);
+}
+
+.btnCart {
+  transition: all .3s ease-in;
+}
+
+/* !Card View */
+.cardView {
+  transition: box-shadow .2s linear;
+}
+
+
+/* !Restaurants */
+.resCard {
+  @apply p-4 bg-white rounded-lg border mb-8 min-w-28 text-center;
+}
+
+
+/*! Create Form  */
+.createForm input,
+form select {
+  @apply w-full p-4 mb-2 border border-orange-400 rounded-xl text-gray-500;
+}
+
+.p-15 {
+  padding: 15px;
+}
+
+.showBox {
+  height: 500px;
+}
+
+.PopularDishes {}
